@@ -7,7 +7,15 @@
     "url": "https://github.com/jarredwitt/ampersand-model-validations-mixin/issues"
   },
   "dependencies": {
-    "underscore": "^1.6.0"
+    "amp-bind": "^1.0.1",
+    "amp-each": "^1.0.1",
+    "amp-extend": "^1.0.1",
+    "amp-has": "^1.0.1",
+    "amp-includes": "^1.0.2",
+    "amp-is-array": "^1.0.1",
+    "amp-is-empty": "^1.0.2",
+    "amp-random": "^1.0.0",
+    "underscore": "^1.7.0"
   },
   "devDependencies": {
     "browserify": "^5.9.1",
@@ -17,7 +25,8 @@
     "run-browser": "~1.2.0",
     "tap-spec": "^0.2.0",
     "tape": "~2.12.1",
-    "tape-run": "^0.2.0"
+    "tape-run": "^0.2.0",
+    "ampersand-model": "^4.0.3"
   },
   "homepage": "https://github.com/jarredwitt/ampersand-model-validations-mixin",
   "keywords": [
@@ -31,12 +40,11 @@
     "url": "git://jarredwitt/ampersand-model-validations-mixin"
   },
   "scripts": {
-    "test": "browserify test/index.js | tape-run | tap-spec",
-    "validate": "jshint .",
-    "start": "run-browser test/index.js"
+    "test": "tests/main.js",
+    "validate": "jshint ."
   },
   "testling": {
-    "files": "test/*.js",
+    "files": "tests/*.js",
     "browsers": [
       "ie/9..latest",
       "firefox/17..latest",

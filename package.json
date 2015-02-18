@@ -1,0 +1,54 @@
+{
+  "name": "ampersand-model-validations-mixin",
+  "description": "A mixin for adding advanced validations to ampersand-model properties.",
+  "version": "0.0.1",
+  "author": "Jarred Witt <me@jarredwitt.com>",
+  "bugs": {
+    "url": "https://github.com/jarredwitt/ampersand-model-validations-mixin/issues"
+  },
+  "dependencies": {
+    "underscore": "^1.6.0"
+  },
+  "devDependencies": {
+    "browserify": "^5.9.1",
+    "jshint": "^2.5.3",
+    "phantomjs": "^1.9.7-15",
+    "precommit-hook": "^1.0.7",
+    "run-browser": "~1.2.0",
+    "tap-spec": "^0.2.0",
+    "tape": "~2.12.1",
+    "tape-run": "^0.2.0"
+  },
+  "homepage": "https://github.com/jarredwitt/ampersand-model-validations-mixin",
+  "keywords": [
+    "model",
+    "validations"
+  ],
+  "license": "MIT",
+  "main": "ampersand-model-validations-mixin.js",
+  "repository": {
+    "type": "git",
+    "url": "git://jarredwitt/ampersand-model-validations-mixin"
+  },
+  "scripts": {
+    "test": "browserify test/index.js | tape-run | tap-spec",
+    "validate": "jshint .",
+    "start": "run-browser test/index.js"
+  },
+  "testling": {
+    "files": "test/*.js",
+    "browsers": [
+      "ie/9..latest",
+      "firefox/17..latest",
+      "firefox/nightly",
+      "chrome/22..latest",
+      "chrome/canary",
+      "opera/12..latest",
+      "opera/next",
+      "safari/5.1..latest",
+      "ipad/6.0..latest",
+      "iphone/6.0..latest",
+      "android-browser/4.2..latest"
+    ]
+  }
+}

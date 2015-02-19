@@ -96,9 +96,40 @@ validations: {
 ```
 Finally, you can have a custom validation. When type is set to a function it is passed the value and expects to get a boolean back. True if valid, false if not. The function is called using the context of the model so access to other properties is possible, but hasn't been tested yet. When using a custom function you can include a msg property to use when the validation fails.
 
+##### Validation Dependencies
+A validation can depend on a model's property value as well. If the the dependency value is blank or doesn't match the value needed than the validation is skipped.
+```
+validations: {
+    'email': {
+        type: 'email',
+        depends: {
+            name: 'username',
+            value: 'thehammer'
+        }
+    }
+}
+```
+The above tells the validation to only run if the value of username === 'thehammer'. If the value attribute of the depends object is left off then the validation run only if the property is not empty. You can also depend on properties that are of type object. An example is below
+```
+validations: {
+    'email': {
+        type: 'email',
+        depends: {
+            name: 'group.name',
+            value: 'thehammers'
+        }
+    }
+}
+```
+The above will only validate if the model contains a property called group with the property name's value === 'thehammers'. If the value attribute of the depends is left off then the validation runs only if the property is not empty.
+
 ### How to Use
 ---
-Once all validations are set up you just need to call .ensureValid() on the model, preferably before you save. I do have a plan to create a fork of the models save function with something like .ensureValidAndSave() but that isn't in just yet/hasn't been thought out really. The .ensureValid() runs through all validations and returns an array of validation failure objects:
+There are two new methods available on the model to validate.
+```
+var failures = model.ensureValidate();
+```
+.ensureValidate() returns an array of validation failure objects.
 ```
 [{
   key: 'age',
@@ -106,6 +137,17 @@ Once all validations are set up you just need to call .ensureValid() on the mode
 }]
 ```
 The validation failure object includes the key and a message. Hopefully this is helpful so that you don't have to rewrite error messages to display to users.
+
+The second method is .ensureValidAndSave(). This method accepts the same arguments as the model.save() but can also have a validationError callback added.
+```
+model.ensureValidAndSave({}, {
+    validationError: function(errors){
+    },
+    success: ...,
+    error: ...
+}
+```
+This method will validate the model and if all validations pass it will call the model's save method for you. If the validations fail it will pass the failure array to the validationError callback. If no callback is present, model.save() is still not called if validations fail.
 
 ### Some Thoughts
 ---

@@ -19,12 +19,36 @@ module.exports = {
         each(validations, bind(function(value, key){
             var attrValue = attributes[key];
             var attrType = typeof attrValue;
-
             var def = validations[key];
 
-            if(isEmpty(def)){
-                throw 'No definition was passed in. Remove validation if it\'s not required';
-            }
+			if(isEmpty(def)){
+				throw 'No definition was passed in. Remove validation if it\'s not required';
+			}
+
+			if(has(def, 'depends')){
+				var dependAttr;
+				if(includes(def.depends.name, '.')){
+					var valueArray = def.depends.name.split('.');
+					dependAttr = attributes[valueArray[0]][valueArray[1]];
+					if(isEmpty(dependAttr)){
+						return;
+					}
+				}
+				else{
+					dependAttr = attributes[def.depends.name];
+				}
+
+				if(has(def.depends, 'value')){
+					if(dependAttr !== def.depends.value){
+						return;
+					}
+				}
+				else{
+					if(isEmpty(dependAttr) === true){
+						return;
+					}
+				}
+			}
 
             this._validateGeneral(key, attrValue, def);
 
@@ -37,6 +61,28 @@ module.exports = {
 
         return this._validationFails;
     },
+
+	ensureValidAndSave: function(key, val, options){
+		var attrs;
+
+		// Handle both `"key", value` and `{key: value}` -style arguments.
+		if (key === null || typeof key === 'object') {
+			attrs = key;
+			options = val;
+		} else {
+			(attrs = {})[key] = val;
+		}
+
+		var validationError = options.validationError || function(){};
+
+		this.ensureValid();
+		if(this._validationFails.length > 0){
+			validationError.call(this, this._validationFails);
+		}
+		else{
+			this.save.call(this, key, val, options);
+		}
+	},
 
     _validateGeneral: function(key, value, def){
         var result;

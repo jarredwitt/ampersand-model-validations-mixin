@@ -5,8 +5,6 @@ var tape = require('tape');
 var AmpersandModel = require('ampersand-model');
 var AmpersandModelValidationMixin = require('../ampersand-model-validations-mixin');
 var extend = require('amp-extend');
-var isEmpty = require('amp-is-empty');
-var random = require('amp-random');
 
 var Model;
 
@@ -16,7 +14,8 @@ function reset(){
         props: {
             'name': 'string',
             'age': 'number',
-            'email': 'string'
+            'email': 'string',
+			'parents': 'object'
         }
     };
 
@@ -48,17 +47,17 @@ test('Make sure error is thrown if validation with no definition is used', funct
 
     t.throws(function(){
         model.ensureValid();
-    }, Error);
+    }, Error, 'Throws error on empty validation definition');
 
     t.end();
 });
 
-test('Test number range validation', function(t){
+test('Test number in range validation', function(t){
     var min = 18;
     var max = 25;
 
     var model = new Model({
-        age: random(min, max)
+        age: 19
     });
 
     extend(model, {
@@ -69,9 +68,31 @@ test('Test number range validation', function(t){
         }
     });
 
-    t.deepEqual(model.ensureValid(), []);
+    t.equal(model.ensureValid().length, 0, 'Number in range since empty array was returned');
 
     t.end();
+});
+
+test('Test number out of range validation', function(t){
+	var min = 18;
+	var max = 25;
+
+	var model = new Model({
+		age: 17
+	});
+
+	extend(model, {
+		validations: {
+			'age':{
+				range: [min, max]
+			}
+		}
+	});
+
+	var fails = model.ensureValid();
+	t.equal(fails[0].key, 'age', fails[0].msg);
+
+	t.end();
 });
 
 test('Test number allow zero validation', function(t){
@@ -87,7 +108,8 @@ test('Test number allow zero validation', function(t){
         }
     });
 
-    t.equal(model.ensureValid().length, 1);
+	var fails = model.ensureValid();
+    t.equal(fails[0].key, 'age', fails[0].msg);
 
     t.end();
 });
@@ -97,8 +119,6 @@ test('Test blank string validation', function(t){
         name: ''
     });
 
-    t.equal(isEmpty(model.name), true);
-
     extend(model, {
         validations: {
             'name':{
@@ -106,17 +126,15 @@ test('Test blank string validation', function(t){
             }
         }
     });
-
-    t.equal(model.ensureValid().length, 1);
+	var fails = model.ensureValid();
+    t.equal(fails[0].key, 'name', fails[0].msg);
     t.end();
 });
 
 test('Test email string validation', function(t){
     var model = new Model({
-        email: 'email@email.com'
+        email: 'emailemail.com'
     });
-
-    //t.equal(includes(model.email, '@'), true);
 
     extend(model, {
         validations: {
@@ -126,7 +144,8 @@ test('Test email string validation', function(t){
         }
     });
 
-    t.equal(model.ensureValid().length, 0);
+	var fails = model.ensureValid();
+    t.equal(fails[0].key, 'email', fails[0].msg);
 
     t.end();
 });
@@ -147,13 +166,14 @@ test('Test custom function for type', function(t){
 		}
 	});
 
-	t.equal(model.ensureValid().length, 1);
+	var fails = model.ensureValid();
+	t.equal(fails[0].key, 'name', fails[0].msg);
 	t.end();
 });
 
 test('Test value is in array of values', function(t){
 	var model = new Model({
-		name: 'steve'
+		name: 'jim'
 	});
 
 	extend(model, {
@@ -164,6 +184,105 @@ test('Test value is in array of values', function(t){
 		}
 	});
 
-	t.equal(model.ensureValid().length, 0);
+	var fails = model.ensureValid();
+	t.equal(fails[0].key, 'name', fails[0].msg);
 	t.end();
+});
+
+test('Test dependency on other property being not empty', function(t){
+	var model = new Model({
+		name: '',
+		email: 'email@email.com'
+	});
+
+	extend(model, {
+		validations: {
+			email: {
+				type:'email',
+				depends: {
+					name: 'name'
+				}
+			}
+		}
+	});
+
+	var fails = model.ensureValid();
+	t.equal(fails.length, 0, 'Validation was never called since dependency was empty');
+
+	t.end();
+});
+
+test('Test dependency on other properties value', function(t){
+	var model = new Model({
+		name: 'jim',
+		email: 'emailemail.com'
+	});
+
+	extend(model, {
+		validations: {
+			email: {
+				type:'email',
+				depends: {
+					name: 'name',
+					value: 'jim'
+				}
+			}
+		}
+	});
+
+	var fails = model.ensureValid();
+	t.equal(fails[0].key, 'email', fails[0].msg);
+
+	t.end();
+});
+
+test('Test dependency on other property when property is object', function(t){
+	var model = new Model({
+		name: 'jim',
+		email: 'emailemail.com',
+		parents: {
+			dad: 'pete',
+			mom: 'stacy'
+		}
+	});
+
+	extend(model, {
+		validations: {
+			email: {
+				type:'email',
+				depends: {
+					name: 'parents.dad',
+					value: 'pete'
+				}
+			}
+		}
+	});
+
+	var fails = model.ensureValid();
+	t.equal(fails[0].key, 'email', fails[0].msg);
+
+	t.end();
+});
+
+test('Test ensureValidAndSave method', function(t){
+	var model = new Model({
+		name: 'jim'
+	});
+
+	extend(model, {
+		validations: {
+			'name': {
+				values: ['bill', 'jack', 'steve']
+			}
+		}
+	});
+
+	model.ensureValidAndSave({},{
+		validationError: function(errors){
+			t.test('validationError function was called', function(){
+				t.equal(errors[0].key, 'name', errors[0].msg);
+				t.end();
+			});
+		}
+	});
 });

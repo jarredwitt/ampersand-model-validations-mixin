@@ -7,3 +7,9 @@
  - Created custom validator.
  - Updated test cases.
  - Updated readme.
+
+#0.1.0
+ - Created values array validator
+ - Updated test cases
+ - Updated readme
+ - Started trying to follow semver.

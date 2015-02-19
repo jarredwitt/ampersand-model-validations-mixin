@@ -1,7 +1,7 @@
 {
   "name": "ampersand-model-validations-mixin",
   "description": "A mixin for adding advanced validations to ampersand-model properties.",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "author": "Jarred Witt <me@jarredwitt.com>",
   "bugs": {
     "url": "https://github.com/jarredwitt/ampersand-model-validations-mixin/issues"
@@ -17,7 +17,8 @@
     "amp-random": "^1.0.0",
     "underscore": "^1.7.0",
     "amp-is-string": "~1.0.1",
-    "amp-is-function": "~1.0.1"
+    "amp-is-function": "~1.0.1",
+    "amp-index-of": "~1.1.0"
   },
   "devDependencies": {
     "browserify": "^5.9.1",

@@ -150,3 +150,20 @@ test('Test custom function for type', function(t){
 	t.equal(model.ensureValid().length, 1);
 	t.end();
 });
+
+test('Test value is in array of values', function(t){
+	var model = new Model({
+		name: 'steve'
+	});
+
+	extend(model, {
+		validations: {
+			'name': {
+				values: ['bill', 'jack', 'steve']
+			}
+		}
+	});
+
+	t.equal(model.ensureValid().length, 0);
+	t.end();
+});

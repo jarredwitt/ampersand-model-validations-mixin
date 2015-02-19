@@ -2,6 +2,7 @@ var bind = require('amp-bind');
 var each = require('amp-each');
 var has = require('amp-has');
 var includes = require('amp-includes');
+var indexOf = require('amp-index-of');
 var isArray = require('amp-is-array');
 var isEmpty = require('amp-is-empty');
 var isFunction = require('amp-is-function');
@@ -53,6 +54,10 @@ module.exports = {
 				this._processValidation(key, result, def.msg);
 			}
         }
+		if(has(def, 'values') && isArray(def.values)){
+			result = indexOf(def.values, value);
+			this._processValidation(key, result, 'Value not in list of values');
+		}
     },
 
     _validateType: function(key, value, type){
@@ -91,7 +96,7 @@ module.exports = {
     },
 
     _processValidation: function(key, value, msg){
-        if(value === false){
+        if(value === false || value === -1){
             this._validationFails.push({
                 key: key,
                 msg: msg || 'Did not pass validation'

@@ -17,21 +17,7 @@ module.exports = {
         var attributes = this.attributes;
 
         each(validations, bind(function(value, key){
-			var attrValue;
-			if(includes(key, '.')){
-				var valueArray = key.split('.');
-				attrValue = attributes[valueArray[0]][valueArray[1]];
-				if(isEmpty(attrValue)){
-					return;
-				}
-			}
-			else{
-				attrValue = attributes[key];
-			}
-
-            var attrType = typeof attrValue;
-            var def = validations[key];
-
+			var def = validations[key];
 			if(isEmpty(def)){
 				throw 'No definition was passed in. Remove validation if it\'s not required';
 			}
@@ -61,16 +47,27 @@ module.exports = {
 				}
 			}
 
-            this._validateGeneral(key, attrValue, def);
+			var attrValue;
+			if(includes(key, '.')){
+				var valueArray = key.split('.');
+				attrValue = attributes[valueArray[0]][valueArray[1]];
+			}
+			else{
+				attrValue = attributes[key];
+			}
 
-            switch(attrType) {
-                case 'number':
-                    this._validateNumberType(key, attrValue, def);
-                    break;
-            }
-        }, this));
+			var attrType = typeof attrValue;
 
-        return this._validationFails;
+			this._validateGeneral(key, attrValue, def);
+
+			switch(attrType) {
+				case 'number':
+					this._validateNumberType(key, attrValue, def);
+					break;
+			}
+		}, this));
+
+		return this._validationFails;
     },
 
 	ensureValidAndSave: function(key, val, options){

@@ -41,7 +41,7 @@ validations: {
   }
 }
 ```
-If the property is an object then just use 'property.name' the key of the validations object. Currently there are only 5 types of validations that are possible.
+If the property is an object then just use 'property.name' for the key of the validations object. Currently there are only 5 types of validations that are possible.
 
 ##### Range
 ```

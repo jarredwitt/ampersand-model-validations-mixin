@@ -23,3 +23,6 @@
  - Added ability to validate object properties.
  - Updated test cases.
  - Updated readme.
+
+#v0.3.1
+ - Fixed readme typo.

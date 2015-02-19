@@ -130,3 +130,23 @@ test('Test email string validation', function(t){
 
     t.end();
 });
+
+test('Test custom function for type', function(t){
+	var model = new Model({
+		name: 'foo'
+	});
+
+	extend(model, {
+		validations: {
+			'name': {
+				type: function(v){
+					return v === 'bar';
+				},
+				msg: 'Value does not equal bar'
+			}
+		}
+	});
+
+	t.equal(model.ensureValid().length, 1);
+	t.end();
+});

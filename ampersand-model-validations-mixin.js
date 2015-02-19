@@ -1,9 +1,11 @@
 var bind = require('amp-bind');
 var each = require('amp-each');
-var isEmpty = require('amp-is-empty');
 var has = require('amp-has');
-var isArray = require('amp-is-array');
 var includes = require('amp-includes');
+var isArray = require('amp-is-array');
+var isEmpty = require('amp-is-empty');
+var isFunction = require('amp-is-function');
+var isString = require('amp-is-string');
 
 module.exports = {
     _validationFails: undefined,
@@ -42,8 +44,14 @@ module.exports = {
             this._processValidation(key, result, 'Empty value or zero is not allowed.');
         }
         if(has(def, 'type')){
-            result = this._validateType(key, value, def.type);
-            this._processValidation(key, result, 'Failed validation for type ' + def.type);
+            if(isString(def.type)){
+				result = this._validateType(key, value, def.type);
+				this._processValidation(key, result, 'Failed validation for type ' + def.type);
+			}
+			if(isFunction(def.type)) {
+				result = def.type.call(this, value);
+				this._processValidation(key, result, def.msg);
+			}
         }
     },
 

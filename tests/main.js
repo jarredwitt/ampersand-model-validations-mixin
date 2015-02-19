@@ -41,7 +41,7 @@ test('Make sure error is thrown if validation with no definition is used', funct
         validations: {
             'age': {
 
-            }
+			}
         }
     });
 
@@ -285,4 +285,25 @@ test('Test ensureValidAndSave method', function(t){
 			});
 		}
 	});
+});
+
+test('Test validation on property of type object', function(t){
+	var model = new Model({
+		parents: {
+			email: 'emailemail.com'
+		}
+	});
+
+	extend(model, {
+		validations: {
+			'parents.email': {
+				type: 'email'
+			}
+		}
+	});
+
+	var fails = model.ensureValid();
+	t.equal(fails[0].key, 'parents.email', fails[0].msg);
+
+	t.end();
 });

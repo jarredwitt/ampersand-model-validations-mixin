@@ -17,7 +17,18 @@ module.exports = {
         var attributes = this.attributes;
 
         each(validations, bind(function(value, key){
-            var attrValue = attributes[key];
+			var attrValue;
+			if(includes(key, '.')){
+				var valueArray = key.split('.');
+				attrValue = attributes[valueArray[0]][valueArray[1]];
+				if(isEmpty(attrValue)){
+					return;
+				}
+			}
+			else{
+				attrValue = attributes[key];
+			}
+
             var attrType = typeof attrValue;
             var def = validations[key];
 
@@ -28,8 +39,8 @@ module.exports = {
 			if(has(def, 'depends')){
 				var dependAttr;
 				if(includes(def.depends.name, '.')){
-					var valueArray = def.depends.name.split('.');
-					dependAttr = attributes[valueArray[0]][valueArray[1]];
+					var dependsValueArray = def.depends.name.split('.');
+					dependAttr = attributes[dependsValueArray[0]][dependsValueArray[1]];
 					if(isEmpty(dependAttr)){
 						return;
 					}

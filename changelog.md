@@ -18,3 +18,8 @@
  - Created new method .ensureValidAndSave() which validates the model and then calls the model's save method if validations passed.
  - Added the ability to place a dependency on another property being not empty or it's value. Property can even be an object property.
  - Updated test cases.
+
+#v0.3.0
+ - Added ability to validate object properties.
+ - Updated test cases.
+ - Updated readme.

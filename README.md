@@ -123,6 +123,18 @@ validations: {
 ```
 The above will only validate if the model contains a property called group with the property name's value === 'thehammers'. If the value attribute of the depends is left off then the validation runs only if the property is not empty.
 
+##### Alternate Names
+You can use the altName property to display an alternate name in the failure messages. This comes in handy if you are looping through the validation errors and displaying a message to the user about the failure.
+```
+validations: {
+    'email': {
+        type: 'email',
+        altName: 'Email Address'
+    }
+}
+```
+The above returns 'Email Address' for the key in the failures array. This relieves you of some of the need to write key transforms to display messages to users.
+
 ### How to Use
 ---
 There are two new methods available on the model to validate.

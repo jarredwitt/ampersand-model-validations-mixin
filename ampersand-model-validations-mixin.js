@@ -58,6 +58,8 @@ module.exports = {
 
 			var attrType = typeof attrValue;
 
+            key = def.altName || key;
+
 			this._validateGeneral(key, attrValue, def);
 
 			switch(attrType) {

@@ -307,3 +307,24 @@ test('Test validation on property of type object', function(t){
 
 	t.end();
 });
+
+test('Test ability to use an alternate name for the validation messages', function(t){
+    var model = new Model({
+        name: '',
+        email: 'emailemail.com'
+    });
+
+    extend(model, {
+        validations: {
+            email: {
+                type: 'email',
+                altName: 'Email Address'
+            }
+        }
+    });
+
+    var fails = model.ensureValid();
+    t.equal(fails[0].key, 'Email Address', 'Validation was never called since dependency was empty');
+
+    t.end();
+});

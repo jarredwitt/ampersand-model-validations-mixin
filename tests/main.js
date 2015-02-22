@@ -328,3 +328,25 @@ test('Test ability to use an alternate name for the validation messages', functi
 
     t.end();
 });
+
+test('Test ability to use custom messages', function(t){
+    var model = new Model({
+        name: ''
+    });
+
+    var msg = 'Name cannot be blank';
+
+    extend(model, {
+        validations: {
+            name: {
+                allowBlank: false,
+                msg: msg
+            }
+        }
+    });
+
+    var fails = model.ensureValid();
+    t.equal(fails[0].msg, msg, fails[0].msg);
+
+    t.end();
+});

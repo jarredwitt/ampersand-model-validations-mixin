@@ -135,6 +135,17 @@ validations: {
 ```
 The above returns 'Email Address' for the key in the failures array. This relieves you of some of the need to write key transforms to display messages to users.
 
+##### Custom Messages
+You can use the msg property to provide your own validation messages to the user.
+```
+validations: {
+    'name': {
+        allowBlank: false,
+        msg: 'Name cannot be blank'
+    }
+}
+```
+The above will have 'Name cannot be blank' as the msg value in the validations failure array if the validation fails.
 ### How to Use
 ---
 There are two new methods available on the model to validate.

@@ -30,5 +30,10 @@
 #v0.3.2
  - Fixed issue where validation was half way running even when a dependency was empty.
 
-#v0.3.3
+#v0.4.0
  - Added ability to use the altName property to provide an alternate name for failure messages.
+
+#v0.5.0
+ - Added ability to use the msg property to provide custom messages
+ - Updated tests
+ - Updated readme

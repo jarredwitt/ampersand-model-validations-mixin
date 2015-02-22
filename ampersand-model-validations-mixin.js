@@ -98,12 +98,12 @@ module.exports = {
         var result;
         if(has(def, 'allowBlank') && def.allowBlank === false){
             result = !isEmpty(value);
-            this._processValidation(key, result, 'Empty value or zero is not allowed.');
+            this._processValidation(key, result, def.msg || 'Empty value or zero is not allowed.');
         }
         if(has(def, 'type')){
             if(isString(def.type)){
 				result = this._validateType(key, value, def.type);
-				this._processValidation(key, result, 'Failed validation for type ' + def.type);
+				this._processValidation(key, result, def.msg || 'Failed validation for type ' + def.type);
 			}
 			if(isFunction(def.type)) {
 				result = def.type.call(this, value);
@@ -112,7 +112,7 @@ module.exports = {
         }
 		if(has(def, 'values') && isArray(def.values)){
 			result = indexOf(def.values, value);
-			this._processValidation(key, result, 'Value not in list of values');
+			this._processValidation(key, result, def.msg || 'Value not in list of values');
 		}
     },
 
@@ -128,7 +128,7 @@ module.exports = {
         var result;
         if(has(def, 'range')){
             result = this._validateNumberRange(def.range, value);
-            this._processValidation(key, result, 'Value failed range validation');
+            this._processValidation(key, result, def.msg || 'Value failed range validation');
         }
     },
 

@@ -2,61 +2,28 @@ var bind = require('amp-bind');
 var each = require('amp-each');
 var has = require('amp-has');
 var includes = require('amp-includes');
-var indexOf = require('amp-index-of');
+//var indexOf = require('amp-index-of');
 var isArray = require('amp-is-array');
 var isEmpty = require('amp-is-empty');
-var isFunction = require('amp-is-function');
-var isString = require('amp-is-string');
+//var isFunction = require('amp-is-function');
+//var isString = require('amp-is-string');
 
-module.exports = {
-    _validationFails: undefined,
-    ensureValid: function(){
-        this._validationFails = [];
 
-        each(this.validations, bind(function(def, key){
-            //check to see if we have an empty def object
-			if(isEmpty(def)){
-				throw 'No definition was passed in. Remove validation if it\'s not required';
-			}
+/***************************************
+ *
+ * Operations
+ */
+//Validates blank values using amp-is-empty.
+function _validateIsNotBlank(def){
+    return !isEmpty(def.attrValue);
+}
 
-            if(isArray(def) === true){
-                each(def, bind(function(d){
-                    d.key = key;
-                    _processValidation.call(this, d);
-                }, this))
-            }
-            else{
-                def.key = key;
-                _processValidation.call(this, def);
-            }
+//Validates email types using regex.
+function _validateIsEmail(def){
+    var emailRegEx = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/i;
 
-		}, this));
-
-		return this._validationFails;
-    },
-
-	ensureValidAndSave: function(key, val, options) {
-        var attrs;
-
-        // Handle both `"key", value` and `{key: value}` -style arguments.
-        if (key === null || typeof key === 'object') {
-            attrs = key;
-            options = val;
-        } else {
-            (attrs = {})[key] = val;
-        }
-
-        var validationError = options.validationError || function () {};
-
-        this.ensureValid();
-        if (this._validationFails.length > 0) {
-            validationError.call(this, this._validationFails);
-        }
-        else {
-            this.save.call(this, key, val, options);
-        }
-    }
-};
+    return emailRegEx.test(def.attrValue);
+}
 
 function _processValidation(def){
     //check for dependecy object and if it contains a value.
@@ -122,14 +89,56 @@ function _processValidation(def){
     }
 }
 
-//Validates blank values using amp-is-empty.
-function _validateIsNotBlank(def){
-    return !isEmpty(def.attrValue);
-}
+/**************************************************
+ *
+ * Module definition
+ */
+module.exports = {
+    _validationFails: undefined,
+    ensureValid: function(){
+        this._validationFails = [];
 
-//Validates email types using regex.
-function _validateIsEmail(def){
-    var emailRegEx = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/i;
+        each(this.validations, bind(function(def, key){
+            //check to see if we have an empty def object
+			if(isEmpty(def)){
+				throw 'No definition was passed in. Remove validation if it\'s not required';
+			}
 
-    return emailRegEx.test(def.attrValue);
-}
+            if(isArray(def) === true){
+                each(def, bind(function(d){
+                    d.key = key;
+                    _processValidation.call(this, d);
+                }, this));
+            }
+            else{
+                def.key = key;
+                _processValidation.call(this, def);
+            }
+
+		}, this));
+
+		return this._validationFails;
+    },
+
+	ensureValidAndSave: function(key, val, options) {
+        var attrs;
+
+        // Handle both `"key", value` and `{key: value}` -style arguments.
+        if (key === null || typeof key === 'object') {
+            attrs = key;
+            options = val;
+        } else {
+            (attrs = {})[key] = val;
+        }
+
+        var validationError = options.validationError || function () {};
+
+        this.ensureValid();
+        if (this._validationFails.length > 0) {
+            validationError.call(this, this._validationFails);
+        }
+        else {
+            this.save.call(this, key, val, options);
+        }
+    }
+};

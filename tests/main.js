@@ -48,145 +48,106 @@ test('Make sure error is thrown if validation with no definition is used', funct
     t.throws(function(){
         model.ensureValid();
     }, Error, 'Throws error on empty validation definition');
-
     t.end();
 });
 
-test('Test number in range validation', function(t){
-    var min = 18;
-    var max = 25;
-
+test('Test blank validation for string or zero for number', function(t){
     var model = new Model({
-        age: 19
+        name: 'Steve',
+        age: 50
     });
 
     extend(model, {
         validations: {
-            'age':{
-                range: [min, max]
+            name: {
+                type: 'blank',
+                msg: 'Name cannot be empty'
+            },
+            age: {
+                type: 'blank',
+                msg: 'Age cannot be empty or zero'
             }
         }
     });
 
-    t.equal(model.ensureValid().length, 0, 'Number in range since empty array was returned');
+    t.equal(model.ensureValid().length, 0, 'Make sure non-blank values pass');
 
-    t.end();
-});
+    model.name = '';
+    model.age = 0;
 
-test('Test number out of range validation', function(t){
-	var min = 18;
-	var max = 25;
-
-	var model = new Model({
-		age: 17
-	});
-
-	extend(model, {
-		validations: {
-			'age':{
-				range: [min, max]
-			}
-		}
-	});
-
-	var fails = model.ensureValid();
-	t.equal(fails[0].key, 'age', fails[0].msg);
-
-	t.end();
-});
-
-test('Test number allow zero validation', function(t){
-    var model = new Model({
-       age: 0
-    });
-
-    extend(model, {
-        validations: {
-            'age':{
-                allowBlank: false
-            }
-        }
-    });
-
-	var fails = model.ensureValid();
-    t.equal(fails[0].key, 'age', fails[0].msg);
-
-    t.end();
-});
-
-test('Test blank string validation', function(t){
-    var model = new Model({
-        name: ''
-    });
-
-    extend(model, {
-        validations: {
-            'name':{
-                allowBlank: false
-            }
-        }
-    });
-	var fails = model.ensureValid();
-    t.equal(fails[0].key, 'name', fails[0].msg);
+    t.equal(model.ensureValid().length, 2, 'Blank values are not allowed');
     t.end();
 });
 
 test('Test email string validation', function(t){
     var model = new Model({
-        email: 'emailemail.com'
+        email: 'email@email.com'
     });
 
     extend(model, {
         validations: {
-            'email': {
-                type: 'email'
+            email: {
+                type: 'email',
+                msg: 'Email must be a valid email'
             }
         }
     });
 
-	var fails = model.ensureValid();
-    t.equal(fails[0].key, 'email', fails[0].msg);
+    t.equal(model.ensureValid().length, 0, 'Make sure valid emails pass');
 
+    model.email = 'emailemail.com';
+
+    t.equal(model.ensureValid().length, 1, 'Invalid email does not pass');
+    t.end();
+});
+
+test('Test array of validations for property', function(t){
+    var model = new Model({
+        email: 'email@email.com'
+    });
+
+    extend(model, {
+        validations: {
+            email: [{
+                type: 'blank',
+                msg: 'Email cannot be blank'
+            },{
+                type: 'email',
+                msg: 'Email must be a valid email'
+            }]
+        }
+    });
+
+    t.equal(model.ensureValid().length, 0, 'Make sure valid values pass');
+
+    model.email = 'emailemail.com';
+
+    t.equal(model.ensureValid().length, 1, 'Invalid email was not allowed');
+
+    model.email = '';
+
+    t.equal(model.ensureValid().length, 2, 'Blank value and invalid email not allowed');
     t.end();
 });
 
 test('Test custom function for type', function(t){
-	var model = new Model({
-		name: 'foo'
-	});
+    var model = new Model({
+        name: 'foo'
+    });
 
-	extend(model, {
-		validations: {
-			'name': {
-				type: function(v){
-					return v === 'bar';
-				},
-				msg: 'Value does not equal bar'
-			}
-		}
-	});
+    extend(model, {
+        validations: {
+            'name': {
+                type: function(v){
+                    return v === 'bar';
+                },
+                msg: 'Value does not equal bar'
+            }
+        }
+    });
 
-	var fails = model.ensureValid();
-	t.equal(fails[0].key, 'name', fails[0].msg);
-	t.end();
-});
-
-test('Test value is in array of values', function(t){
-	var model = new Model({
-		name: 'jim'
-	});
-
-	extend(model, {
-		validations: {
-			'name': {
-				values: ['bill', 'jack', 'steve']
-			}
-		}
-	});
-
-	var fails = model.ensureValid();
-	t.equal(fails[0].key, 'name', fails[0].msg);
-	t.end();
+    t.equal(model.ensureValid().length, 1, 'Value does not equal bar');
+    t.end();
 });
 
 test('Test dependency on other property being not empty', function(t){
@@ -264,7 +225,7 @@ test('Test dependency on other property when property is object', function(t){
 	t.end();
 });
 
-test('Test ensureValidAndSave method', function(t){
+/*test('Test ensureValidAndSave method', function(t){
 	var model = new Model({
 		name: 'jim'
 	});
@@ -285,7 +246,7 @@ test('Test ensureValidAndSave method', function(t){
 			});
 		}
 	});
-});
+});*/
 
 test('Test validation on property of type object', function(t){
 	var model = new Model({
@@ -324,29 +285,7 @@ test('Test ability to use an alternate name for the validation messages', functi
     });
 
     var fails = model.ensureValid();
-    t.equal(fails[0].key, 'Email Address', 'Validation was never called since dependency was empty');
-
-    t.end();
-});
-
-test('Test ability to use custom messages', function(t){
-    var model = new Model({
-        name: ''
-    });
-
-    var msg = 'Name cannot be blank';
-
-    extend(model, {
-        validations: {
-            name: {
-                allowBlank: false,
-                msg: msg
-            }
-        }
-    });
-
-    var fails = model.ensureValid();
-    t.equal(fails[0].msg, msg, fails[0].msg);
+    t.equal(fails[0].key, 'Email Address', 'Alternate was used in validation failures.');
 
     t.end();
 });

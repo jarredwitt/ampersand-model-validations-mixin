@@ -13,153 +13,123 @@ module.exports = {
     ensureValid: function(){
         this._validationFails = [];
 
-        var validations = this.validations;
-        var attributes = this.attributes;
-
-        each(validations, bind(function(value, key){
-			var def = validations[key];
+        each(this.validations, bind(function(def, key){
+            //check to see if we have an empty def object
 			if(isEmpty(def)){
 				throw 'No definition was passed in. Remove validation if it\'s not required';
 			}
 
-			if(has(def, 'depends')){
-				var dependAttr;
-				if(includes(def.depends.name, '.')){
-					var dependsValueArray = def.depends.name.split('.');
-					dependAttr = attributes[dependsValueArray[0]][dependsValueArray[1]];
-					if(isEmpty(dependAttr)){
-						return;
-					}
-				}
-				else{
-					dependAttr = attributes[def.depends.name];
-				}
+            if(isArray(def) === true){
+                each(def, bind(function(d){
+                    d.key = key;
+                    _processValidation.call(this, d);
+                }, this))
+            }
+            else{
+                def.key = key;
+                _processValidation.call(this, def);
+            }
 
-				if(has(def.depends, 'value')){
-					if(dependAttr !== def.depends.value){
-						return;
-					}
-				}
-				else{
-					if(isEmpty(dependAttr) === true){
-						return;
-					}
-				}
-			}
-
-			var attrValue;
-			if(includes(key, '.')){
-				var valueArray = key.split('.');
-				attrValue = attributes[valueArray[0]][valueArray[1]];
-			}
-			else{
-				attrValue = attributes[key];
-			}
-
-			var attrType = typeof attrValue;
-
-            key = def.altName || key;
-
-			this._validateGeneral(key, attrValue, def);
-
-			switch(attrType) {
-				case 'number':
-					this._validateNumberType(key, attrValue, def);
-					break;
-			}
 		}, this));
 
 		return this._validationFails;
     },
 
-	ensureValidAndSave: function(key, val, options){
-		var attrs;
+	ensureValidAndSave: function(key, val, options) {
+        var attrs;
 
-		// Handle both `"key", value` and `{key: value}` -style arguments.
-		if (key === null || typeof key === 'object') {
-			attrs = key;
-			options = val;
-		} else {
-			(attrs = {})[key] = val;
-		}
-
-		var validationError = options.validationError || function(){};
-
-		this.ensureValid();
-		if(this._validationFails.length > 0){
-			validationError.call(this, this._validationFails);
-		}
-		else{
-			this.save.call(this, key, val, options);
-		}
-	},
-
-    _validateGeneral: function(key, value, def){
-        var result;
-        if(has(def, 'allowBlank') && def.allowBlank === false){
-            result = !isEmpty(value);
-            this._processValidation(key, result, def.msg || 'Empty value or zero is not allowed.');
-        }
-        if(has(def, 'type')){
-            if(isString(def.type)){
-				result = this._validateType(key, value, def.type);
-				this._processValidation(key, result, def.msg || 'Failed validation for type ' + def.type);
-			}
-			if(isFunction(def.type)) {
-				result = def.type.call(this, value);
-				this._processValidation(key, result, def.msg);
-			}
-        }
-		if(has(def, 'values') && isArray(def.values)){
-			result = indexOf(def.values, value);
-			this._processValidation(key, result, def.msg || 'Value not in list of values');
-		}
-    },
-
-    _validateType: function(key, value, type){
-        switch(type){
-            case 'email': {
-                return includes(value, '@') && includes(value, '.');
-            }
-        }
-    },
-
-    _validateNumberType: function(key, value, def){
-        var result;
-        if(has(def, 'range')){
-            result = this._validateNumberRange(def.range, value);
-            this._processValidation(key, result, def.msg || 'Value failed range validation');
-        }
-    },
-
-    _validateNumberRange: function(range, value){
-        var min, max;
-
-        if(range && isArray(range)){
-            min = range[0];
-            max = range[1];
-        }
-        else{
-            min = range;
+        // Handle both `"key", value` and `{key: value}` -style arguments.
+        if (key === null || typeof key === 'object') {
+            attrs = key;
+            options = val;
+        } else {
+            (attrs = {})[key] = val;
         }
 
-        if(max){
-            return (value <= max && value >= min);
-        }
-        else{
-            return value >= min;
-        }
-    },
+        var validationError = options.validationError || function () {};
 
-    _processValidation: function(key, value, msg){
-        if(value === false || value === -1){
-            this._validationFails.push({
-                key: key,
-                msg: msg || 'Did not pass validation'
-            });
+        this.ensureValid();
+        if (this._validationFails.length > 0) {
+            validationError.call(this, this._validationFails);
         }
-        else{
-            return true;
+        else {
+            this.save.call(this, key, val, options);
         }
     }
 };
+
+function _processValidation(def){
+    //check for dependecy object and if it contains a value.
+    if(has(def, 'depends')){
+        var dependAttr;
+        if(includes(def.depends.name, '.')){
+            var dependsValueArray = def.depends.name.split('.');
+            dependAttr = this.attributes[dependsValueArray[0]][dependsValueArray[1]];
+            if(isEmpty(dependAttr)){
+                return;
+            }
+        }
+        else{
+            dependAttr = this.attributes[def.depends.name];
+        }
+
+        if(has(def.depends, 'value')){
+            if(dependAttr !== def.depends.value){
+                return;
+            }
+        }
+        else{
+            if(isEmpty(dependAttr) === true){
+                return;
+            }
+        }
+    }
+
+    //get the value for the key.
+    if(includes(def.key, '.')){
+        var valueArray = def.key.split('.');
+        def.attrValue = this.attributes[valueArray[0]][valueArray[1]];
+    }
+    else{
+        def.attrValue = this.attributes[def.key];
+    }
+
+    def.attrType = typeof def.attrValue;
+
+    //run the validation
+    var validationType = typeof def.type === 'string'? def.type : typeof def.type;
+    switch(validationType){
+        case 'blank':{
+            def.result = _validateIsNotBlank.call(this, def);
+            break;
+        }
+        case 'email':{
+            def.result = _validateIsEmail.call(this, def);
+            break;
+        }
+        case 'function':{
+            def.result = def.type.call(this, def.attrValue);
+            break;
+        }
+    }
+
+    //process the validation
+    if(def.result === false || def.result === -1){
+        this._validationFails.push({
+            key: def.altName || def.key,
+            msg: def.msg || 'Did not pass validation'
+        });
+    }
+}
+
+//Validates blank values using amp-is-empty.
+function _validateIsNotBlank(def){
+    return !isEmpty(def.attrValue);
+}
+
+//Validates email types using regex.
+function _validateIsEmail(def){
+    var emailRegEx = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/i;
+
+    return emailRegEx.test(def.attrValue);
+}

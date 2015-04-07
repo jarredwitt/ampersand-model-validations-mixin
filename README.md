@@ -1,8 +1,7 @@
 # ampersand-model-validations-mixin
 A mixin for adding advanced validations to ampersand-model properties.
 
-This mixin was born out of the need to have more advanced validations performed before an ampersand-model was saved. Wanting to find a DRY way to perform the task I thought of this mixin. This is
-still very experimental and will change drastically in the future, hopefully for the better.
+This mixin was born out of the need to have more advanced validations performed before an ampersand-model was saved. Wanting to find a DRY way to perform the task I thought of this mixin.
 
 I have not put this on npm yet.
 
@@ -63,9 +62,9 @@ validations: {
   }
 }
 ```
-The email validation as you may guess, validates an email to make sure that it contains valid email.
+The email validation as you may guess, validates an email to make sure that it contains a valid email.
 
-##### Custom Validation
+##### Function
 ```
 validations: {
   'name': {
@@ -76,7 +75,7 @@ validations: {
   }
 }
 ```
-When type is set to a function it is passed the value and expects to get a boolean back. True if valid, false if not. The function is called using the context of the model so access to other properties is possible, but hasn't been tested yet. When using a custom function you can include a msg property to use when the validation fails.
+When type is set to a function it is passed the value and expects to get a boolean back. True if valid, false if not. The function is called using the context of the model so access to other properties is possible, but hasn't been tested yet.
 
 ##### Validation Dependencies
 A validation can depend on a model's property value as well. If the the dependency value is blank or doesn't match the value needed than the validation is skipped.

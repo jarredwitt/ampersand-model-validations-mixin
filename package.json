@@ -12,24 +12,24 @@
     "amp-extend": "^1.0.1",
     "amp-has": "^1.0.1",
     "amp-includes": "^1.0.2",
+    "amp-index-of": "~1.1.0",
     "amp-is-array": "^1.0.1",
     "amp-is-empty": "^1.0.2",
-    "amp-random": "^1.0.0",
-    "underscore": "^1.7.0",
-    "amp-is-string": "~1.0.1",
     "amp-is-function": "~1.0.1",
-    "amp-index-of": "~1.1.0"
+    "amp-is-string": "~1.0.1",
+    "amp-random": "^1.0.0",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
-    "browserify": "^5.9.1",
-    "jshint": "^2.5.3",
-    "phantomjs": "^1.9.7-15",
-    "precommit-hook": "^1.0.7",
-    "run-browser": "~1.2.0",
-    "tap-spec": "^0.2.0",
-    "tape": "~2.12.1",
-    "tape-run": "^0.2.0",
-    "ampersand-model": "^4.0.3"
+    "ampersand-model": "^5.0.3",
+    "browserify": "^9.0.7",
+    "jshint": "^2.6.3",
+    "phantomjs": "^1.9.16",
+    "precommit-hook": "^2.0.1",
+    "run-browser": "^2.0.2",
+    "tap-spec": "^3.0.0",
+    "tape": "^4.0.0",
+    "tape-run": "^1.0.0"
   },
   "homepage": "https://github.com/jarredwitt/ampersand-model-validations-mixin",
   "keywords": [
@@ -43,7 +43,7 @@
     "url": "git://jarredwitt/ampersand-model-validations-mixin"
   },
   "scripts": {
-    "test": "tests/main.js",
+    "test": "browserify tests/index.js | tape-run | tap-spec",
     "validate": "jshint ."
   },
   "testling": {

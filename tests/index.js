@@ -15,7 +15,7 @@ function reset(){
             'name': 'string',
             'age': 'number',
             'email': 'string',
-			'parents': 'object'
+			'child': 'object'
         }
     };
 
@@ -70,12 +70,12 @@ test('Test blank validation for string or zero for number', function(t){
         }
     });
 
-    t.equal(model.ensureValid().length, 0, 'Make sure non-blank values pass');
+    t.equal(model.ensureValid().length, 0, 'Ensure non-blank values pass');
 
     model.name = '';
     model.age = 0;
 
-    t.equal(model.ensureValid().length, 2, 'Blank values are not allowed');
+    t.equal(model.ensureValid().length, 2, 'Ensure blank values do not pass');
     t.end();
 });
 
@@ -93,11 +93,11 @@ test('Test email string validation', function(t){
         }
     });
 
-    t.equal(model.ensureValid().length, 0, 'Make sure valid emails pass');
+    t.equal(model.ensureValid().length, 0, 'Ensure valid emails pass');
 
     model.email = 'emailemail.com';
 
-    t.equal(model.ensureValid().length, 1, 'Invalid email does not pass');
+    t.equal(model.ensureValid().length, 1, 'Ensure invalid emails do not pass');
     t.end();
 });
 
@@ -118,15 +118,15 @@ test('Test array of validations for property', function(t){
         }
     });
 
-    t.equal(model.ensureValid().length, 0, 'Make sure valid values pass');
+    t.equal(model.ensureValid().length, 0, 'Ensure non-blank values pass');
 
     model.email = 'emailemail.com';
 
-    t.equal(model.ensureValid().length, 1, 'Invalid email was not allowed');
+    t.equal(model.ensureValid().length, 1, 'Ensure invalid emails do not pass');
 
     model.email = '';
 
-    t.equal(model.ensureValid().length, 2, 'Blank value and invalid email not allowed');
+    t.equal(model.ensureValid().length, 2, 'Ensure that blank email does not pass');
     t.end();
 });
 
@@ -135,25 +135,27 @@ test('Test custom function for type', function(t){
         name: 'foo'
     });
 
+    var msg = 'Ensure value does not equal bar';
+
     extend(model, {
         validations: {
             'name': {
                 type: function(v){
                     return v === 'bar';
                 },
-                msg: 'Value does not equal bar'
+                msg: msg
             }
         }
     });
 
-    t.equal(model.ensureValid().length, 1, 'Value does not equal bar');
+    t.equal(model.ensureValid().length, 1, msg);
     t.end();
 });
 
 test('Test dependency on other property being not empty', function(t){
 	var model = new Model({
 		name: '',
-		email: 'email@email.com'
+		email: 'emailemail.com'
 	});
 
 	extend(model, {
@@ -168,14 +170,19 @@ test('Test dependency on other property being not empty', function(t){
 	});
 
 	var fails = model.ensureValid();
-	t.equal(fails.length, 0, 'Validation was never called since dependency was empty');
+	t.equal(fails.length, 0, 'Ensure validation was never called for blank dependency');
+
+    model.name = 'Foo';
+
+    var fails2 = model.ensureValid();
+    t.equal(fails2.length, 1, 'Ensure validation was called when dependency is not blank');
 
 	t.end();
 });
 
 test('Test dependency on other properties value', function(t){
 	var model = new Model({
-		name: 'jim',
+		name: 'foo',
 		email: 'emailemail.com'
 	});
 
@@ -185,25 +192,30 @@ test('Test dependency on other properties value', function(t){
 				type:'email',
 				depends: {
 					name: 'name',
-					value: 'jim'
-				}
+					value: 'bar'
+				},
+                msg: 'Email must be valid'
 			}
 		}
 	});
 
 	var fails = model.ensureValid();
-	t.equal(fails[0].key, 'email', fails[0].msg);
+	t.equal(fails.length, 0, 'Ensure validation was never called when dependency value does not match');
+
+    model.name = 'bar';
+
+    var fails2 = model.ensureValid();
+    t.equal(fails2.length, 1, 'Ensure validation was called when dependency value does match');
 
 	t.end();
 });
 
 test('Test dependency on other property when property is object', function(t){
 	var model = new Model({
-		name: 'jim',
+		name: 'foo',
 		email: 'emailemail.com',
-		parents: {
-			dad: 'pete',
-			mom: 'stacy'
+		child: {
+			name: 'bar'
 		}
 	});
 
@@ -212,15 +224,20 @@ test('Test dependency on other property when property is object', function(t){
 			email: {
 				type:'email',
 				depends: {
-					name: 'parents.dad',
-					value: 'pete'
+					name: 'child.name',
+					value: 'foo'
 				}
 			}
 		}
 	});
 
 	var fails = model.ensureValid();
-	t.equal(fails[0].key, 'email', fails[0].msg);
+	t.equal(fails.length, 0, 'Ensure validation was not called when dependency object value does not match');
+
+    model.child.name = 'foo';
+
+    var fails2 = model.ensureValid();
+    t.equal(fails2.length, 1, 'Ensure validation was called when dependency object valude does match');
 
 	t.end();
 });
@@ -250,21 +267,26 @@ test('Test dependency on other property when property is object', function(t){
 
 test('Test validation on property of type object', function(t){
 	var model = new Model({
-		parents: {
-			email: 'emailemail.com'
+		child: {
+			email: 'email@email.com'
 		}
 	});
 
 	extend(model, {
 		validations: {
-			'parents.email': {
+			'child.email': {
 				type: 'email'
 			}
 		}
 	});
 
 	var fails = model.ensureValid();
-	t.equal(fails[0].key, 'parents.email', fails[0].msg);
+	t.equal(fails.length, 0, 'Ensure valid values pass');
+
+    model.child.email = 'notemail';
+
+    var fails2 = model.ensureValid();
+    t.equal(fails2.length, 1, 'Ensure non valid values do not pass');
 
 	t.end();
 });
@@ -285,7 +307,7 @@ test('Test ability to use an alternate name for the validation messages', functi
     });
 
     var fails = model.ensureValid();
-    t.equal(fails[0].key, 'Email Address', 'Alternate was used in validation failures.');
+    t.equal(fails[0].key, 'Email Address', 'Ensure alternate name was used in validation failures.');
 
     t.end();
 });

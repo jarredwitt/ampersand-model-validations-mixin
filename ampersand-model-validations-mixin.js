@@ -31,6 +31,7 @@ function _processValidation(def){
         var dependAttr;
         if(includes(def.depends.name, '.')){
             var dependsValueArray = def.depends.name.split('.');
+            console.log(this.attributes);
             dependAttr = this.attributes[dependsValueArray[0]][dependsValueArray[1]];
             if(isEmpty(dependAttr)){
                 return;
@@ -101,7 +102,7 @@ module.exports = {
         each(this.validations, bind(function(def, key){
             //check to see if we have an empty def object
 			if(isEmpty(def)){
-				throw 'No definition was passed in. Remove validation if it\'s not required';
+				throw new Error('No definition was passed in. Remove validation if it\'s not required');
 			}
 
             if(isArray(def) === true){

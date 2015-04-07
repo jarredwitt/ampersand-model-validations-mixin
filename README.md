@@ -1,8 +1,7 @@
 # ampersand-model-validations-mixin
 A mixin for adding advanced validations to ampersand-model properties.
 
-This mixin was born out of the need to have more advanced validations performed before an ampersand-model was saved. Wanting to find a DRY way to perform the task I thought of this mixin. This is
-still very experimental and will change drastically in the future, hopefully for the better.
+This mixin was born out of the need to have more advanced validations performed before an ampersand-model was saved. Wanting to find a DRY way to perform the task I thought of this mixin.
 
 I have not put this on npm yet.
 

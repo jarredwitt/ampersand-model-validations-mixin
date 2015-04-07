@@ -37,3 +37,10 @@
  - Added ability to use the msg property to provide custom messages
  - Updated tests
  - Updated readme
+ 
+#v1.0.0
+ - refactored API to be easier to use
+ - Added in ability to use array of validations for single property
+ - Added in ability to include custom message for all validations
+ - Updated tests
+ - Updated readme

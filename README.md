@@ -3,7 +3,6 @@ A mixin for adding advanced validations to ampersand-model properties.
 
 This mixin was born out of the need to have more advanced validations performed before an ampersand-model was saved. Wanting to find a DRY way to perform the task I thought of this mixin.
 
-I have not put this on npm yet.
 
 ### SetUp
 ---

@@ -34,13 +34,14 @@
   "homepage": "https://github.com/jarredwitt/ampersand-model-validations-mixin",
   "keywords": [
     "model",
-    "validations"
+    "validations",
+    "ampersandjs"
   ],
   "license": "MIT",
   "main": "ampersand-model-validations-mixin.js",
   "repository": {
     "type": "git",
-    "url": "git://jarredwitt/ampersand-model-validations-mixin"
+    "url": "git://jarredwitt/ampersand-model-validations-mixin.git"
   },
   "scripts": {
     "test": "browserify tests/index.js | tape-run | tap-spec",
